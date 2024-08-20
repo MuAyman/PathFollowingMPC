@@ -53,10 +53,10 @@ public:
                update(input);
                outfile << state.x << "," << state.y << "," << state.yaw << "," << state.steeringAngle << "\n";
 
-               // Print vehicle states every step
-               cout << "\nStep " << i;
-               cout << ", x: " << state.x << ", y: " << state.y << ", yaw: "
-                    << state.yaw << ", steeringAngle: " << state.steeringAngle << "\n";
+               // // Print vehicle states every step
+               // cout << "\nStep " << i;
+               // cout << ", x: " << state.x << ", y: " << state.y << ", yaw: "
+               //      << state.yaw << ", steeringAngle: " << state.steeringAngle << "\n";
           }
           outfile.close();
      }
