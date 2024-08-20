@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.animation import FuncAnimation
 
 # Step 1: Load the CSV data
 data = pd.read_csv("trajectory.csv")
@@ -11,73 +12,47 @@ y = data["y"].to_numpy()
 yaw = data["yaw"].to_numpy()
 steering_angle = data["steeringAngle"].to_numpy()
 
-# Step 3: Create the first set of plots
-plt.figure(figsize=(12, 10))
+# Step 3: Create the figure for the interactive plot
+fig, ax = plt.subplots(figsize=(8, 8))
 
-# Plot x vs y (trajectory)
-plt.subplot(2, 2, 1)
-plt.plot(x, y, label="Trajectory")
-plt.xlabel("x (meters)")
-plt.ylabel("y (meters)")
-plt.title("Vehicle Trajectory")
+# Set up the plot limits and labels
+ax.set_xlim(min(x) - 1, max(x) + 1)
+ax.set_ylim(min(y) - 1, max(y) + 1)
+ax.set_xlabel("x (meters)")
+ax.set_ylabel("y (meters)")
+ax.set_title("Vehicle Trajectory")
+
+# Initialize the line and the quiver (arrow) that will represent the vehicle's trajectory and orientation
+(trajectory_line,) = ax.plot([], [], label="Trajectory")
+vehicle_orientation = ax.quiver([], [], [], [], scale=10, color="red")
+
+
+# Function to initialize the plot elements
+def init():
+    trajectory_line.set_data([], [])
+    vehicle_orientation.set_UVC([], [])
+    return trajectory_line, vehicle_orientation
+
+
+# Function to update the plot with new data
+def update(frame):
+    # Update the trajectory line
+    trajectory_line.set_data(x[:frame], y[:frame])
+
+    # Update the vehicle's orientation using quiver
+    vehicle_orientation.set_offsets([x[frame], y[frame]])
+    vehicle_orientation.set_UVC(np.cos(yaw[frame]), np.sin(yaw[frame]))
+
+    return trajectory_line, vehicle_orientation
+
+
+# Create the animation object
+ani = FuncAnimation(fig, update, frames=len(x), init_func=init, blit=True, interval=50)
+
+# Save the animation as a GIF file
+ani.save("trajectory_animation.gif", writer="pillow", fps=10)
+
+# Optionally, show the plot
 plt.legend()
 plt.grid(True)
-
-# Plot yaw over time
-plt.subplot(2, 2, 2)
-plt.plot(yaw, label="Yaw")
-plt.xlabel("Time Step")
-plt.ylabel("Yaw (radians)")
-plt.title("Yaw vs Time Step")
-plt.legend()
-plt.grid(True)
-
-# Plot steering angle over time
-plt.subplot(2, 2, 3)
-plt.plot(steering_angle, label="Steering Angle")
-plt.xlabel("Time Step")
-plt.ylabel("Steering Angle (radians)")
-plt.title("Steering Angle vs Time Step")
-plt.legend()
-plt.grid(True)
-
-# Plot x and y positions over time in a combined plot
-time_steps = np.arange(len(x))
-
-plt.subplot(2, 2, 4)
-plt.plot(time_steps, x, label="x position")
-plt.plot(time_steps, y, label="y position")
-plt.xlabel("Time Step")
-plt.ylabel("Position (meters)")
-plt.title("x and y Positions vs Time Step")
-plt.legend()
-plt.grid(True)
-
-# Show the first set of plots
-plt.tight_layout()
-plt.show()
-
-# Step 4: Create a second figure for 2D motion with orientation
-plt.figure(figsize=(8, 8))
-plt.plot(x, y, label="Trajectory")
-
-# Add quivers to show the orientation of the vehicle
-for i in range(0, len(x), max(1, len(x) // 20)):  # Reduce number of arrows for clarity
-    plt.arrow(
-        x[i],
-        y[i],
-        0.5 * np.cos(yaw[i]),
-        0.5 * np.sin(yaw[i]),
-        head_width=0.2,
-        head_length=0.3,
-        fc="red",
-        ec="red",
-    )
-
-plt.xlabel("x (meters)")
-plt.ylabel("y (meters)")
-plt.title("2D Vehicle Motion with Orientation")
-plt.legend()
-plt.grid(True)
-plt.axis("equal")  # Ensure equal scaling on both axes
 plt.show()
