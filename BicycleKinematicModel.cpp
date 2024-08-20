@@ -12,7 +12,7 @@ struct States
      double steeringAngle = 0; // in radians
 };
 
-struct ControlInput
+struct ControlInputs
 {
      double steeringAngleRate = 0; // rad/second
      double velocity = 0;          // m/s
@@ -35,7 +35,7 @@ public:
      {
      }
 
-     void update(ControlInput input) // alpha & v
+     void update(ControlInputs input)
      {
           // Update vehicle states
           state.steeringAngle += input.steeringAngleRate * dt;
@@ -44,31 +44,52 @@ public:
           state.x += input.velocity * cos(state.yaw) * dt;
      }
 
-     void simulate(int steps, ControlInput input)
-     {
-          std::ofstream outfile("trajectory.csv");
-          outfile << "x,y,yaw,steeringAngle" << "\n";
-          for (int i = 0; i < steps; ++i)
-          {
-               update(input);
-               outfile << state.x << "," << state.y << "," << state.yaw << "," << state.steeringAngle << "\n";
+     // void simulate(int steps, ControlInputs input)
+     // {
+     //      std::ofstream outfile("trajectory.csv");
+     //      outfile << "x,y,yaw,steeringAngle" << "\n";
+     //      for (int i = 0; i < steps; ++i)
+     //      {
+     //           input.steeringAngleRate = sin(i / 9);
+     //           update(input);
+     //           outfile << state.x << "," << state.y << "," << state.yaw << "," << state.steeringAngle << "\n";
 
-               // // Print vehicle states every step
-               // cout << "\nStep " << i;
-               // cout << ", x: " << state.x << ", y: " << state.y << ", yaw: "
-               //      << state.yaw << ", steeringAngle: " << state.steeringAngle << "\n";
-          }
-          outfile.close();
-     }
+     //           // // Print vehicle states every step
+     //           // cout << "\nStep " << i;
+     //           // cout << ", x: " << state.x << ", y: " << state.y << ", yaw: "
+     //           //      << state.yaw << ", steeringAngle: " << state.steeringAngle << "\n";
+     //      }
+     //      outfile.close();
+     // }
 };
 
 int main()
 {
-     double dt = 0.1; // seconds
-     int steps = 100;
+     double dt = 0.05; // seconds
+     int steps = 1000;
 
      Vehicle vehicle(dt);
-     vehicle.simulate(steps, {0.1, 5});
+
+     ControlInputs input = {0.1, 5};
+
+     std::ofstream outfile("trajectory.csv");
+     outfile << "x,y,yaw,steeringAngle" << "\n";
+
+     // simulation loop
+     for (int i = 0; i < steps; ++i)
+     {
+          input.steeringAngleRate = sin(i / 9);
+          vehicle.update(input);
+          outfile << vehicle.state.x << "," << vehicle.state.y << "," << vehicle.state.yaw << "," << vehicle.state.steeringAngle << "\n";
+
+          // // Print vehicle states every step
+          // cout << "\nStep " << i;
+          // cout << ", x: " << vehicle.state.x << ", y: " << vehicle.state.y << ", yaw: "
+          //      << vehicle.state.yaw << ", steeringAngle: " << vehicle.state.steeringAngle << "\n";
+     }
+     outfile.close();
+
+     // vehicle.simulate(steps, {0.1, 5});
 
      return 0;
 }
