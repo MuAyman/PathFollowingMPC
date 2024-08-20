@@ -10,6 +10,17 @@ struct States
      double y = 0;             // in meters
      double yaw = 0;           // in radians
      double steeringAngle = 0; // in radians
+
+     // setter for steeringAngle to limit steering to pi/4
+     // if above pi/4, set to pi/4, if less than -pi/4, set to -pi/4
+     void setsteeringAngle(double angle)
+     {
+          if (angle > M_PI / 4)
+               angle = M_PI / 4;
+          else if (angle < -M_PI / 4)
+               angle = -M_PI / 4;
+          steeringAngle = angle;
+     }
 };
 
 struct ControlInputs
@@ -38,7 +49,7 @@ public:
      void update(ControlInputs input)
      {
           // Update vehicle states
-          state.steeringAngle += input.steeringAngleRate * dt;
+          state.setsteeringAngle(state.steeringAngle + input.steeringAngleRate * dt);
           state.yaw += input.velocity / L * tan(state.steeringAngle) * dt;
           state.y += input.velocity * sin(state.yaw) * dt;
           state.x += input.velocity * cos(state.yaw) * dt;
@@ -66,11 +77,11 @@ public:
 int main()
 {
      double dt = 0.05; // seconds
-     int steps = 1000;
+     int steps = 500;
 
      Vehicle vehicle(dt);
 
-     ControlInputs input = {0.1, 5};
+     ControlInputs input = {0.1, 10};
 
      std::ofstream outfile("trajectory.csv");
      outfile << "x,y,yaw,steeringAngle" << "\n";
