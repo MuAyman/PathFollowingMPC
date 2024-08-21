@@ -48,11 +48,14 @@ public:
 
      void update(ControlInputs input)
      {
+          States prevS = state;
+          ControlInputs prevI = input;
+
           // Update vehicle states
-          state.setsteeringAngle(state.steeringAngle + input.steeringAngleRate * dt);
-          state.yaw += input.velocity / L * tan(state.steeringAngle) * dt;
-          state.y += input.velocity * sin(state.yaw) * dt;
-          state.x += input.velocity * cos(state.yaw) * dt;
+          state.setsteeringAngle(prevS.steeringAngle + input.steeringAngleRate * dt);
+          state.yaw = prevS.yaw + ((prevI.velocity / L * tan(prevS.steeringAngle)) + (prevI.velocity / (L * pow(cos(prevS.steeringAngle), 2))) * (state.steeringAngle - prevS.steeringAngle) + (tan(prevS.steeringAngle) / L * (input.steeringAngleRate - prevI.steeringAngleRate))) * dt;
+          state.y = prevS.y + ((prevI.velocity * sin(prevS.yaw)) + (prevI.velocity * cos(prevS.yaw)) * (state.yaw - prevS.yaw) + (sin(prevS.yaw) * (input.velocity - prevI.velocity))) * dt;
+          state.x = prevS.x + ((prevI.velocity * cos(prevS.yaw)) + (-prevI.velocity * sin(prevS.yaw)) * (state.yaw - prevS.yaw) + (cos(prevS.yaw) * (input.velocity - prevI.velocity))) * dt;
      }
 };
 
@@ -63,7 +66,7 @@ int main()
 
      Vehicle vehicle(dt);
 
-     ControlInputs input = {0.1, 10};
+     ControlInputs input = {0.15, 15};
 
      std::ofstream outfile("trajectory.csv");
      outfile << "x,y,yaw,steeringAngle" << "\n";

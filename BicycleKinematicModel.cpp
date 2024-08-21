@@ -81,7 +81,7 @@ int main()
 
      Vehicle vehicle(dt);
 
-     ControlInputs input = {0.1, 10};
+     ControlInputs input = {0.15, 15};
 
      std::ofstream outfile("trajectory.csv");
      outfile << "x,y,yaw,steeringAngle" << "\n";
