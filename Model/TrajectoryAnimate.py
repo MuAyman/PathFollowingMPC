@@ -4,15 +4,13 @@ import numpy as np
 from matplotlib.animation import FuncAnimation
 
 # Step 1: Load the CSV data
-data = pd.read_csv(
-    "/media/muayman17/New/Muhammad/Work/MPC_Controller_Task/PathFollowingMPC/Model/trajectory.csv"
-)
+data = pd.read_csv("trajectory.csv")
 
 # Step 2: Extract the states and convert them to numpy arrays
 x = data["x"].to_numpy()
 y = data["y"].to_numpy()
-yaw = data["yaw"].to_numpy()
-steering_angle = data["steeringAngle"].to_numpy()
+yaw = data["yaw"].to_numpy() - np.pi
+steering_angle = data["steeringAngle"].to_numpy() - 2 * np.pi
 
 # Step 3: Create the figure for the interactive plot
 fig, ax = plt.subplots(figsize=(8, 8))
