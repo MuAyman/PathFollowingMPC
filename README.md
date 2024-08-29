@@ -1,4 +1,3 @@
-## README.md
 # Nonlinear Model Predictive Control (NLMPC) Implementation
 
 This repository contains a C++ implementation of a Nonlinear Model Predictive Control (NLMPC) system for controlling a vehicle's motion. The system optimizes the vehicle's trajectory to follow a reference path while considering constraints on velocity and steering rate.
