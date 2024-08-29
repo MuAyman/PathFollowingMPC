@@ -2,15 +2,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+import math
 
 # Step 1: Load the CSV data
 data = pd.read_csv("trajectory.csv")
 
+# Reference trajectory points (given. as x_ref, y_ref, theta_ref)
+x_ref = -100.0
+y_ref = -500.0
+theta_ref = math.atan(y_ref / x_ref)
+
 # Step 2: Extract the states and convert them to numpy arrays
 x = data["x"].to_numpy()
 y = data["y"].to_numpy()
-yaw = data["yaw"].to_numpy() - np.pi
-steering_angle = data["steeringAngle"].to_numpy() - 2 * np.pi
+if x_ref < 0:
+    yaw = data["yaw"].to_numpy() - np.pi
+    steering_angle = data["steeringAngle"].to_numpy() - 2 * np.pi
+else:
+    yaw = data["yaw"].to_numpy()
+    steering_angle = data["steeringAngle"].to_numpy()
+
 
 # Step 3: Create the figure for the interactive plot
 fig, ax = plt.subplots(figsize=(8, 8))
@@ -18,6 +29,8 @@ fig, ax = plt.subplots(figsize=(8, 8))
 # Set up the plot limits and labels
 ax.set_xlim(min(x) - 1, max(x) + 1)
 ax.set_ylim(min(y) - 1, max(y) + 1)
+ax.scatter([x_ref], [y_ref], color="red", label="Reference Point", marker="x")
+
 ax.set_xlabel("x (meters)")
 ax.set_ylabel("y (meters)")
 ax.set_title("Vehicle Trajectory")

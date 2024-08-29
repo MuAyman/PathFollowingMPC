@@ -10,17 +10,17 @@ using namespace std;
 // Weighting matrices for the MPC objective function
 const double Qx = 10.0;  // Q for x position
 const double Qy = 20.0;  // Q for y position
-const double Qf = 30.0;  // Q for combined x, y position
+const double Qf = 30.0;  // Q for Euclidean x, y position
 const double Qyaw = 3.0; // Q for yaw
 const double R = 0.1;    // R for velocity and steering rate
 
 // Reference trajectory point (example)
-const double xx_ref = -150;
-const double yx_ref = 100;
+const double xx_ref = -100;
+const double yx_ref = -500;
 const vector<double> trajectory = {xx_ref, yx_ref, atan(yx_ref / xx_ref)};
 
 // Parameters for simulation
-const int runs = 200;
+const int runs = 500;
 const unsigned int predictionHorizon = 50; // Nc = Np
 
 // Constraints for velocity and steering rate
