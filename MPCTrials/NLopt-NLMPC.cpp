@@ -182,7 +182,7 @@ public:
           toleranceDuration = tolDuration;
           nlopt_set_ftol_rel(opt, toleranceValue);   // tolerance for relative improvement between iterations in the objective function
           nlopt_set_xtol_rel(opt, toleranceValue);   // tolerance for relative improvement between iterations in the optimization parameters (control inputs)
-          nlopt_set_maxtime(opt, toleranceDuration); // tolerance for relative improvement between iterations in the objective function
+          nlopt_set_maxtime(opt, toleranceDuration); // time tolerance for optimization solver (5 seconds timeout per iteration)
      };
 
      void run()
