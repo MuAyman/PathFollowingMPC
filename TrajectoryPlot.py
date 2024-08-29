@@ -13,8 +13,8 @@ yaw = data["velocity"].to_numpy()
 steering_angle = data["steeringAngle"].to_numpy()
 
 # Reference trajectory points (given. as x_ref, y_ref, theta_ref)
-x_ref = 150.0
-y_ref = -100.0
+x_ref = -150.0
+y_ref = 100.0
 theta_ref = math.atan(y_ref / x_ref)
 vel_upper_limit = 20
 vel_lower_limit = -20

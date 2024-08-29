@@ -23,19 +23,12 @@ const vector<double> trajectory = {xx_ref, yx_ref, atan(yx_ref / xx_ref)};
 const int runs = 200;
 const unsigned int predictionHorizon = 50; // Nc = Np
 
-// Constraints for velocity and steering rate
-const double maxVelocity = 20.0;     // Maximum allowable velocity (m/s)
-const double minVelocity = -20.0;    // Minimum allowable velocity (m/s)
-const double maxSteeringRate = 1.0;  // Maximum allowable steering rate (rad/s)
-const double minSteeringRate = -1.0; // Minimum allowable steering rate (rad/s)
-
-const double toleranceValue = 1e-6;
-
 struct Container
 {
      Vehicle vehicleObj;
      Vehicle predictionvehicleObj;
      vector<double> trajectoryPoints;
+     int k;
 
      Container() {}
      Container(vector<double> traj) : trajectoryPoints(traj) {}
@@ -57,7 +50,8 @@ public:
 
      double *solve()
      {
-          double *x = new double[n]{}; // Initial guess
+          double *x = new double[n](); // Initial guess
+          fillInitialGuess(x);
 
           double minf;
           if (nlopt_optimize(opt, x, &minf) < 0)
@@ -69,7 +63,7 @@ public:
           return x;
      }
 
-     static double objFunc(unsigned int n, const double *inputs, double *gradient, void *ptr)
+     static double objFunc(unsigned n, const double *inputs, double *gradient, void *ptr)
      {
           Container *containerPtr = static_cast<Container *>(ptr);
           double totalCost = 0.0;
@@ -79,6 +73,7 @@ public:
 
           for (unsigned int k = 0; k < predictionHorizon; ++k)
           {
+               containerPtr->k = k;
                ControlInputs controlInput = {inputs[2 * k], inputs[2 * k + 1]};
                containerPtr->predictionvehicleObj.update(controlInput);
                predictedState = containerPtr->predictionvehicleObj.state;
@@ -120,15 +115,15 @@ public:
           return totalCost;
      }
 
-     void setBounds()
+        void setBounds()
      {
           double lb[n], ub[n];
           for (unsigned int i = 0; i < n; i += 2)
           {
-               lb[i] = minVelocity;         // v in m/s
-               ub[i] = maxVelocity;         // v in m/s
-               lb[i + 1] = minSteeringRate; // alphadot in rad/s
-               ub[i + 1] = maxSteeringRate; // alphadot in rad/s
+               lb[i] = -20;    // v in m/s
+               ub[i] = 20;     // v in m/s
+               lb[i + 1] = -1; // alphadot in rad/s
+               ub[i + 1] = 1;  // alphadot in rad/s
           }
 
           nlopt_set_lower_bounds(opt, lb);
@@ -137,11 +132,18 @@ public:
 
      void initOpt()
      {
-
           nlopt_set_min_objective(opt, objFunc, &container);
+
+          double toleranceValue = 1e-6;
           nlopt_set_ftol_rel(opt, toleranceValue);
           nlopt_set_xtol_rel(opt, toleranceValue);
           nlopt_set_maxtime(opt, 5); // 5 seconds timeout per iteration
+     }
+
+     void fillInitialGuess(double *x)
+     {
+          for (unsigned int i = 0; i < n; i++)
+               x[i] = 0.0;
      }
 };
 
